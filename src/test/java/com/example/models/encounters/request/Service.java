@@ -1,0 +1,179 @@
+package com.example.models.encounters.request;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+/**
+ * Represents a service within an encounter.
+ * Fields use String types to enable negative testing with invalid data types.
+ */
+public class Service {
+
+    @JsonProperty("order_id")
+    private Integer orderId;
+
+    private String empresa;
+    private String estado;
+    private String sede;
+    private Integer ambito;
+    private String financiador;
+    private String producto;
+    private String plan;
+    private String beneficio;
+
+    @JsonProperty("codigo_autorizacion")
+    private String codigoAutorizacion;
+
+    @JsonProperty("tipo_encounter")
+    private String tipoEncounter;
+
+    @JsonProperty("codigo_prestacion")
+    private String codigoPrestacion;
+
+    private Double importe;
+    private Integer cantidad;
+    private Ubicacion ubicacion;
+
+    public Service() {
+    }
+
+    public Integer getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(Integer orderId) {
+        this.orderId = orderId;
+    }
+
+    public String getEmpresa() {
+        return empresa;
+    }
+
+    public void setEmpresa(String empresa) {
+        this.empresa = empresa;
+    }
+
+    public String getTipoEncounter() {
+        return tipoEncounter;
+    }
+
+    public void setTipoEncounter(String tipoEncounter) {
+        this.tipoEncounter = tipoEncounter;
+    }
+
+    public String getSede() {
+        return sede;
+    }
+
+    public void setSede(String sede) {
+        this.sede = sede;
+    }
+
+    public String getBeneficio() {
+        return beneficio;
+    }
+
+    public void setBeneficio(String beneficio) {
+        this.beneficio = beneficio;
+    }
+
+    public String getProducto() {
+        return producto;
+    }
+
+    public void setProducto(String producto) {
+        this.producto = producto;
+    }
+
+    public String getCodigoAutorizacion() {
+        return codigoAutorizacion;
+    }
+
+    public void setCodigoAutorizacion(String codigoAutorizacion) {
+        this.codigoAutorizacion = codigoAutorizacion;
+    }
+
+    public String getCodigoPrestacion() {
+        return codigoPrestacion;
+    }
+
+    public void setCodigoPrestacion(String codigoPrestacion) {
+        this.codigoPrestacion = codigoPrestacion;
+    }
+
+    public Double getImporte() {
+        return importe;
+    }
+
+    public void setImporte(Double importe) {
+        this.importe = importe;
+    }
+
+    public Integer getCantidad() {
+        return cantidad;
+    }
+
+    public void setCantidad(Integer cantidad) {
+        this.cantidad = cantidad;
+    }
+
+    public Ubicacion getUbicacion() {
+        return ubicacion;
+    }
+
+    public void setUbicacion(Ubicacion ubicacion) {
+        this.ubicacion = ubicacion;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
+    public Integer getAmbito() {
+        return ambito;
+    }
+
+    public void setAmbito(Integer ambito) {
+        this.ambito = ambito;
+    }
+
+    public String getFinanciador() {
+        return financiador;
+    }
+
+    public void setFinanciador(String financiador) {
+        this.financiador = financiador;
+    }
+
+    public String getPlan() {
+        return plan;
+    }
+
+    public void setPlan(String plan) {
+        this.plan = plan;
+    }
+
+    @Override
+    public String toString() {
+        return "Service{" +
+                "orderId=" + orderId +
+                ", empresa='" + empresa + '\'' +
+                ", estado='" + estado + '\'' +
+                ", sede='" + sede + '\'' +
+                ", ambito=" + ambito +
+                ", financiador='" + financiador + '\'' +
+                ", producto='" + producto + '\'' +
+                ", plan='" + plan + '\'' +
+                ", beneficio='" + beneficio + '\'' +
+                ", tipoEncounter='" + tipoEncounter + '\'' +
+                ", codigoAutorizacion='" + codigoAutorizacion + '\'' +
+                ", codigoPrestacion='" + codigoPrestacion + '\'' +
+                ", importe=" + importe +
+                ", cantidad=" + cantidad +
+                ", ubicacion=" + ubicacion +
+                '}';
+    }
+}

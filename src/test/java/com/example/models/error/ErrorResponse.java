@@ -1,0 +1,60 @@
+package com.example.models.error;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class ErrorResponse {
+
+    @JsonProperty("code")
+    private int code;
+
+    @JsonProperty("type")
+    private String type;
+
+    @JsonProperty("message")
+    private String message;
+
+    public ErrorResponse() {
+    }
+
+    public ErrorResponse(int code, String type, String message) {
+        this.code = code;
+        this.type = type;
+        this.message = message;
+    }
+
+    public int getCode() {
+        return code;
+    }
+
+    public void setCode(int code) {
+        this.code = code;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    @Override
+    public String toString() {
+        return "ErrorResponse{" +
+                "code=" + code +
+                ", type='" + type + '\'' +
+                ", message='" + message + '\'' +
+                '}';
+    }
+}
+
