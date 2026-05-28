@@ -56,18 +56,6 @@ public class EncountersStepDef extends BaseStepDef {
         currentEncounter.getServices().add(service);
     }
 
-    @And("contiene los siguientes servicios:")
-    public void contieneLosSiguientesServicios(DataTable table) {
-        List<Map<String, String>> rows = table.asMaps();
-        for (Map<String, String> row : rows) {
-            Service service = buildServiceFromRow(row);
-            currentEncounter.getServices().add(service);
-        }
-
-        EncountersRequest request = new EncountersRequest(List.of(currentEncounter));
-        theActorInTheSpotlight().attemptsTo(PostEncounters.withDetails(request));
-    }
-
     @Then("el estado de respuesta debe ser {int}")
     public void elEstadoDeRespuestaDebeSer(Integer expectedStatus) {
         Integer actualStatus = extractResponse(ResponseStatusCode.status());
