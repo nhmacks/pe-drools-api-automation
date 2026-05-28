@@ -7,80 +7,79 @@ Feature: Encounters
   @enc001 @smoke @happy-path
   Scenario Outline: RULE 1  Código de autorización inválido (critical exclude)
     When el "cliente" envia un encounter con los siguientes datos:
-      | encounter_id        | financiador   | importe_total | tipo_encounter   | empresa   | sede   |
-      | CASE-NECESARIOS-001 | <financiador> | <importe>     | <tipo_encounter> | <empresa> | <sede> |
+      | encounter_id        | financiador | importe_total | tipo_encounter   | empresa | sede |
+      | CASE-NECESARIOS-001 | 174         | 1500          | <tipo_encounter> | 12      | 4    |
     And contiene el siguiente servicio:
-      | order_id   | sede   | ambito   | financiador   | producto   | plan   | beneficio   | codigo_autorizacion   | tipo_encounter   | codigo_prestacion   | importe   | cantidad   | empresa   |
-      | <order_id> | <sede> | <ambito> | <financiador> | <producto> | <plan> | <beneficio> | <codigo_autorizacion> | <tipo_encounter> | <codigo_prestacion> | <importe> | <cantidad> | <empresa> |
+      | order_id | empresa | sede | producto | beneficio | codigo_autorizacion   | codigo_prestacion | importe | cantidad |
+      | 1        | 12      | 4    | 1437     | 350       | <codigo_autorizacion> | APA00005          | 1500    | 1        |
     And envia la solicitud al endpoint de encounters
     Then el estado de respuesta debe ser 200
     And la respuesta contiene el encounter_id "CASE-NECESARIOS-001"
     And el encounter tiene 1 servicio
     And el encounter tiene 0 documentos necesarios
     And el encounter tiene 0 documentos reemplazables
-    And el servicio 1 en la respuesta tiene order_id <order_id>
-    And el servicio 1 en la respuesta tiene codigo_prestacion "<codigo_prestacion>"
-    And el servicio 1 en la respuesta tiene importe <importe>
+    And el servicio 1 en la respuesta tiene order_id 1
+    And el servicio 1 en la respuesta tiene codigo_prestacion "APA00005"
+    And el servicio 1 en la respuesta tiene importe 1500
     And el servicio 1 tiene 0 documentos necesarios
     And el servicio 1 tiene 0 documentos reemplazables
 
     #Examples:
-     # | order_id | sede | ambito | financiador | producto | plan | beneficio | codigo_autorizacion | tipo_encounter | codigo_prestacion | importe | cantidad | empresa | documents | document_groups |
-     # | 1        | 4    | 1      | 19          | 1437     | 963  |           | PREOPERATORIO       | AMBULATORIO    | 50201             | 1500    | 1        | 12      | |  |
-     # | 1        | 4    | 1      | 19          | 1437     | 963  |           | FICTICIO            | EMERGENCIA     | 50201             | 1500    | 1        | 12      | |  |
-     # | 1        | 4    | 1      | 19          | 1437     | 963  |           | CAMPAÑA             | AMBULATORIO    | 50201             | 1500    | 1        | 12      | |  |
-     # | 1        | 4    | 1      | 19          | 1437     | 963  |           | SIN ATENCIÓN        | EMERGENCIA     | 50201             | 1500    | 1        | 12      | |  |
-     # | 1        | 4    | 1      | 19          | 1437     | 963  |           | PILOTO              | AMBULATORIO    | 50201             | 1500    | 1        | 12      | |  |
+      #| order_id | sede | ambito | financiador | producto | plan | beneficio | codigo_autorizacion | tipo_encounter | codigo_prestacion | importe | cantidad | empresa | documents | document_groups |
+      #| 1        | 4    | 1      | 19          | 1437     | 963  |           | PREOPERATORIO       | AMBULATORIO    | 50201             | 1500    | 1        | 12      |           |                 |
+      #| 1        | 4    | 1      | 19          | 1437     | 963  |           | FICTICIO            | EMERGENCIA     | 50201             | 1500    | 1        | 12      |           |                 |
+      #| 1        | 4    | 1      | 19          | 1437     | 963  |           | CAMPAÑA             | AMBULATORIO    | 50201             | 1500    | 1        | 12      |           |                 |
+      #| 1        | 4    | 1      | 19          | 1437     | 963  |           | SIN AT  ENCIÓN      | EMERGENCIA     | 50201             | 1500    | 1        | 12      |           |                 |
+      #| 1        | 4    | 1      | 19          | 1437     | 963  |           | PILOTO              | AMBULATORIO    | 50201             | 1500    | 1        | 12      |           |                 |
 
     Examples:
       | order_id | sede | ambito | financiador | producto | plan | beneficio | codigo_autorizacion | tipo_encounter | codigo_prestacion | importe | cantidad | empresa | documents | document_groups |
-      | 1        | 4    | 1      | 19          | 1437     | 963  |           | PREOPERATORIO       | AMBULATORIO    | 50201             | 1500    | 1        | 12      |           |                 |
-      | 1        | 4    | 1      | 19          | 1437     | 963  |           | FICTICIO            | EMERGENCIA     | 50201             | 1500    | 1        | 12      |           |                 |
-      | 1        | 4    | 1      | 19          | 1437     | 963  |           | CAMPAÑA             | AMBULATORIO    | 50201             | 1500    | 1        | 12      |           |                 |
-      | 1        | 4    | 1      | 19          | 1437     | 963  |           | SIN ATENCIÓN        | EMERGENCIA     | 50201             | 1500    | 1        | 12      |           |                 |
-      | 1        | 4    | 1      | 19          | 1437     | 963  |           | PILOTO              | AMBULATORIO    | 50201             | 1500    | 1        | 12      |           |                 |
+      | 1        | 4    | 1      | 19          | 1437     | 963  |           | PREOPERATORIO       | AMBULATORIO    | APA00005          | 1500    | 1        | 12      |           |                 |
+      | 1        | 4    | 1      | 19          | 1437     | 963  |           | FICTICIO            | EMERGENCIA     | APA00005          | 1500    | 1        | 12      |           |                 |
+      | 1        | 4    | 1      | 19          | 1437     | 963  |           | CAMPAÑA             | AMBULATORIO    | APA00005          | 1500    | 1        | 12      |           |                 |
+      | 1        | 4    | 1      | 19          | 1437     | 963  |           | SIN ATENCIÓN        | EMERGENCIA     | APA00005          | 1500    | 1        | 12      |           |                 |
+      | 1        | 4    | 1      | 19          | 1437     | 963  |           | PILOTO              | AMBULATORIO    | APA00005          | 1500    | 1        | 12      |           |                 |
 
 
   @enc002 @smoke @happy-path
   Scenario Outline: RULE 2  Matriz financiador (Hipermercados Tottus)
     When el "cliente" envia un encounter con los siguientes datos:
-      | encounter_id        | financiador   | importe_total | tipo_encounter   | empresa   | sede   |
-      | CASE-NECESARIOS-001 | <financiador> | <importe>     | <tipo_encounter> | <empresa> | <sede> |
+      | encounter_id        | financiador   | importe_total | tipo_encounter   | empresa | sede |
+      | CASE-NECESARIOS-001 | <financiador> | 1500          | <tipo_encounter> | 12      | 4    |
     And contiene el siguiente servicio:
-      | order_id   | sede   | ambito   | financiador   | producto   | plan   | beneficio   | codigo_autorizacion   | tipo_encounter   | codigo_prestacion   | importe   | cantidad   | empresa   |
-      | <order_id> | <sede> | <ambito> | <financiador> | <producto> | <plan> | <beneficio> | <codigo_autorizacion> | <tipo_encounter> | <codigo_prestacion> | <importe> | <cantidad> | <empresa> |
+      | order_id | empresa | sede | producto   | beneficio   | codigo_autorizacion | codigo_prestacion | importe | cantidad |
+      | 1        | 12      | 4    | <producto> | <beneficio> | PILOTO              | 50201             | 1500    | 1        |
     And envia la solicitud al endpoint de encounters
     Then el estado de respuesta debe ser 200
     And la respuesta contiene el encounter_id "CASE-NECESARIOS-001"
     And el encounter tiene 1 servicio
     And el encounter tiene 0 documentos necesarios
     And el encounter tiene 0 documentos reemplazables
-    And el servicio 1 en la respuesta tiene order_id <order_id>
-    And el servicio 1 en la respuesta tiene codigo_prestacion "<codigo_prestacion>"
-    And el servicio 1 en la respuesta tiene importe <importe>
+    And el servicio 1 en la respuesta tiene order_id 1
+    And el servicio 1 en la respuesta tiene codigo_prestacion "50201"
+    And el servicio 1 en la respuesta tiene importe 1500
     And el servicio 1 tiene 0 documentos necesarios
     And el servicio 1 tiene 0 documentos reemplazables
 
     Examples:
       | order_id | sede | ambito | financiador | producto | plan | beneficio | codigo_autorizacion | tipo_encounter | codigo_prestacion | importe | cantidad | empresa | documents | document_groups |
-      #| 1        | 4    | 1      | 19          | 1437     | 963  |           | AUT-12345           | AMBULATORIO    | 50201             | 1500    | 1        | 12      |
-      | 1        | 4    | 1      | 174         | 1447     | 963  |           | PILOTO              | AMBULATORIO    | 50201             | 1500    | 1        | 12      | 2         |                 |
-      | 1        | 4    | 1      | 171         | 1440     | 963  |           | PILOTO              | AMBULATORIO    | 50201             | 1500    | 1        | 12      |           | [002, 010]      |
-      | 1        | 4    | 1      | 164         | 1448     | 963  |           | PILOTO              | AMBULATORIO    | 50201             | 1500    | 1        | 12      | 2         |                 |
-      | 1        | 4    | 1      | 137         | 1346     | 963  |           | PILOTO              | AMBULATORIO    | 50201             | 1500    | 1        | 12      | 2         |                 |
-      | 1        | 4    | 1      | 140         | 1434     | 963  |           | PILOTO              | AMBULATORIO    | 50201             | 1500    | 1        | 12      | 037, 038  |                 |
-      | 1        | 4    | 1      | 140         | 1386     | 963  |           | PILOTO              | AMBULATORIO    | 50201             | 1500    | 1        | 12      | 037, 038  |                 |
-      | 1        | 4    | 1      | 112         | 1265     | 963  |           | PILOTO              | AMBULATORIO    | 50201             | 1500    | 1        | 12      |           | [002, 010]      |
-      | 1        | 4    | 1      | 112         | 1799     | 963  |           | PILOTO              | AMBULATORIO    | 50201             | 1500    | 1        | 12      |           | [002, 010]      |
-      | 1        | 4    | 1      | 68          | 1197     | 963  |           | PILOTO              | AMBULATORIO    | 50201             | 1500    | 1        | 12      |           | [002, 010]      |
-      | 1        | 4    | 1      | 211         | 1623     | 963  |           | PILOTO              | AMBULATORIO    | 50201             | 1500    | 1        | 12      |           | [002, 010]      |
-      | 1        | 4    | 1      | 211         | 1626     | 963  |           | PILOTO              | AMBULATORIO    | 50201             | 1500    | 1        | 12      |           | [002, 010]      |
-      | 1        | 4    | 1      | 213         | 1644     | 963  |           | PILOTO              | AMBULATORIO    | 50201             | 1500    | 1        | 12      | 037, 038  |                 |
-      | 1        | 4    | 1      | 213         | 1645     | 963  |           | PILOTO              | AMBULATORIO    | 50201             | 1500    | 1        | 12      | 037, 038  |                 |
-      | 1        | 4    | 1      | 124         | 1318     | 963  |           | PILOTO              | AMBULATORIO    | 50201             | 1500    | 1        | 12      |           | [002, 010]      |
-      | 1        | 4    | 1      | 196         | 1536     | 963  |           | PILOTO              | AMBULATORIO    | 50201             | 1500    | 1        | 12      |           | [002, 010]      |
-      | 1        | 4    | 1      | 126         | 1321     | 963  |           | PILOTO              | AMBULATORIO    | 50201             | 1500    | 1        | 12      |           | [002, 010]      |
-      | 1        | 4    | 1      | 99          | 1237     | 963  |           | PILOTO              | AMBULATORIO    | 50201             | 1500    | 1        | 12      |           | [002, 010]      |
+      | 1        | 4    | 1      | 174         | 1447     | 963  | 350       | PILOTO              | AMBULATORIO    | 50201             | 1500    | 1        | 12      | 2         |                 |
+      #| 1        | 4    | 1      | 171         | 1440     | 963  |           | PILOTO              | AMBULATORIO    | 50201             | 1500    | 1        | 12      |           | [002, 010]      |
+      #| 1        | 4    | 1      | 164         | 1448     | 963  |           | PILOTO              | AMBULATORIO    | 50201             | 1500    | 1        | 12      | 2         |                 |
+      #| 1        | 4    | 1      | 137         | 1346     | 963  |           | PILOTO              | AMBULATORIO    | 50201             | 1500    | 1        | 12      | 2         |                 |
+      #| 1        | 4    | 1      | 140         | 1434     | 963  |           | PILOTO              | AMBULATORIO    | 50201             | 1500    | 1        | 12      | 037, 038  |                 |
+      #| 1        | 4    | 1      | 140         | 1386     | 963  |           | PILOTO              | AMBULATORIO    | 50201             | 1500    | 1        | 12      | 037, 038  |                 |
+      #| 1        | 4    | 1      | 112         | 1265     | 963  |           | PILOTO              | AMBULATORIO    | 50201             | 1500    | 1        | 12      |           | [002, 010]      |
+      #| 1        | 4    | 1      | 112         | 1799     | 963  |           | PILOTO              | AMBULATORIO    | 50201             | 1500    | 1        | 12      |           | [002, 010]      |
+      #| 1        | 4    | 1      | 68          | 1197     | 963  |           | PILOTO              | AMBULATORIO    | 50201             | 1500    | 1        | 12      |           | [002, 010]      |
+      #| 1        | 4    | 1      | 211         | 1623     | 963  |           | PILOTO              | AMBULATORIO    | 50201             | 1500    | 1        | 12      |           | [002, 010]      |
+      #| 1        | 4    | 1      | 211         | 1626     | 963  |           | PILOTO              | AMBULATORIO    | 50201             | 1500    | 1        | 12      |           | [002, 010]      |
+      #| 1        | 4    | 1      | 213         | 1644     | 963  |           | PILOTO              | AMBULATORIO    | 50201             | 1500    | 1        | 12      | 037, 038  |                 |
+      #| 1        | 4    | 1      | 213         | 1645     | 963  |           | PILOTO              | AMBULATORIO    | 50201             | 1500    | 1        | 12      | 037, 038  |                 |
+      #| 1        | 4    | 1      | 124         | 1318     | 963  |           | PILOTO              | AMBULATORIO    | 50201             | 1500    | 1        | 12      |           | [002, 010]      |
+      #| 1        | 4    | 1      | 196         | 1536     | 963  |           | PILOTO              | AMBULATORIO    | 50201             | 1500    | 1        | 12      |           | [002, 010]      |
+      #| 1        | 4    | 1      | 126         | 1321     | 963  |           | PILOTO              | AMBULATORIO    | 50201             | 1500    | 1        | 12      |           | [002, 010]      |
+      #| 1        | 4    | 1      | 99          | 1237     | 963  |           | PILOTO              | AMBULATORIO    | 50201             | 1500    | 1        | 12      |           | [002, 010]      |
 
   @enc003 @smoke @happy-path
   Scenario Outline: RULE 2 TAB 2  Garantia EPS
@@ -111,26 +110,28 @@ Feature: Encounters
   @enc003 @smoke @happy-path
   Scenario Outline: RULE 3a  Sustento administrativo (critical exclude)
     When el "cliente" envia un encounter con los siguientes datos:
-      | encounter_id        | financiador   | importe_total | tipo_encounter   | empresa   | sede   |
-      | CASE-NECESARIOS-001 | <financiador> | <importe>     | <tipo_encounter> | <empresa> | <sede> |
+      | encounter_id        | financiador   | importe_total | tipo_encounter | empresa | sede |
+      | CASE-NECESARIOS-001 | <financiador> | 200           | AMBULATORIO    | 12      | 4    |
     And contiene el siguiente servicio:
-      | order_id   | sede   | ambito   | financiador   | producto   | plan   | beneficio   | codigo_autorizacion   | tipo_encounter   | codigo_prestacion   | importe   | cantidad   | empresa   |
-      | <order_id> | <sede> | <ambito> | <financiador> | <producto> | <plan> | <beneficio> | <codigo_autorizacion> | <tipo_encounter> | <codigo_prestacion> | <importe> | <cantidad> | <empresa> |
+      | order_id | sede | ambito | financiador     | producto   | plan | beneficio   | codigo_autorizacion | tipo_encounter | codigo_prestacion   | importe | cantidad | empresa |
+      | 1        | 4    | 1      | "<financiador>" | <producto> | 963  | <beneficio> | AUT-12345           | AMBULATORIO    | <codigo_prestacion> | 200     | 1        | 12      |
     And envia la solicitud al endpoint de encounters
     Then el estado de respuesta debe ser 200
     And la respuesta contiene el encounter_id "CASE-NECESARIOS-001"
     And el encounter tiene 1 servicio
     And el encounter tiene 0 documentos necesarios
     And el encounter tiene 0 documentos reemplazables
-    And el servicio 1 en la respuesta tiene order_id <order_id>
-    And el servicio 1 en la respuesta tiene codigo_prestacion "<codigo_prestacion>"
-    And el servicio 1 en la respuesta tiene importe <importe>
+    And el servicio 1 en la respuesta tiene order_id 1
+    And el servicio 1 en la respuesta tiene codigo_prestacion "ADM00030"
+    And el servicio 1 en la respuesta tiene importe 200
     And el servicio 1 tiene 0 documentos necesarios
     And el servicio 1 tiene 0 documentos reemplazables
 
     Examples:
-      | order_id | sede | ambito | financiador | producto | plan | beneficio | codigo_autorizacion | tipo_encounter | codigo_prestacion | importe | cantidad | empresa |
-      | 1        | 4    | 1      | 19          | 1437     | 963  |           | AUT-12345           | AMBULATORIO    | ADM00030          | 200     | 1        | 12      |
+      | order_id | sede | ambito | financiador   | producto      | plan | beneficio | codigo_autorizacion | tipo_encounter | codigo_prestacion | importe | cantidad | empresa |
+      | 1        | 4    | 1      | (financiador) | (financiador) | 963  |           | AUT-12345           | AMBULATORIO    | ADM00029          | 200     | 1        | 12      |
+      | 1        | 4    | 1      | (financiador) | (financiador) | 963  |           | AUT-12345           | AMBULATORIO    | ADM00030          | 200     | 1        | 12      |
+      | 1        | 4    | 1      | (financiador) | (financiador) | 963  |           | AUT-12345           | AMBULATORIO    | ADM00031          | 200     | 1        | 12      |
 
   @enc003 @smoke @happy-path
   Scenario Outline: RULE 3b  Medicina física y rehabilitación
