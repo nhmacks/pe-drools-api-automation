@@ -67,14 +67,14 @@ public class EncountersStepDef extends BaseStepDef {
         }
         if ("(cualquiera)".equals(currentEncounter.getFinanciador()) && "(cualquiera)".equals(service.getProducto())) {
             String[] randomRow = getRandomRowFromCsv("Lst_Productos.csv");
-            currentEncounter.setFinanciador(randomRow[0]); // PLAN_PK
-            service.setProducto(randomRow[1]);    // CODIGO_GARANTE_PK
-            currentEncounter.setFinanciador(randomRow[0]); // Aseguramos que el financiador del encounter coincida con el del servicio
+            currentEncounter.setFinanciador(randomRow[0]); // CODIGO_GARANTE_PK (financiador)
+            service.setProducto(randomRow[1]);             // PLAN_PK (producto)
         } else if (!"(cualquiera)".equals(currentEncounter.getFinanciador()) && "(cualquiera)".equals(service.getProducto())) {
             String[] randomRow = getRandomRowByFinanciadorFromCsv("Lst_Productos.csv", currentEncounter.getFinanciador());
-            service.setProducto(randomRow[1]); // CODIGO_GARANTE_PK
+            System.out.println("Financiador: " + currentEncounter.getFinanciador() + ". Producto seleccionado: " + randomRow[1]);
+            service.setProducto(randomRow[1]); // PLAN_PK (producto)
         }
-        if("(cualquiera)".equals(service.getBeneficio())) {
+        if ("(cualquiera)".equals(service.getBeneficio())) {
             String[] randomRow = getRandomRowFromCsv("Lst_Beneficio2.csv");
             service.setBeneficio(randomRow[0]); // BENEFICIO_PK
         }
@@ -221,8 +221,56 @@ public class EncountersStepDef extends BaseStepDef {
     @And("el encuentro indica como documentos necesario {string}")
     public void elEncuentroIndicaComoDocumentosNecesario(String documentos) {
         EncounterResponse encounter = encountersResponse.getEncounters().get(0);
-        List<String> expectedDocumentos = List.of(documentos.split(",\\s*"));
-        assertThat(encounter.getDocumentosNecesarios(), containsInAnyOrder(expectedDocumentos.toArray()));
+        if (documentos == null || documentos.trim().isEmpty()) {
+            assertThat(encounter.getDocumentosNecesarios(), is(empty()));
+        } else {
+            List<String> expectedDocumentos = List.of(documentos.split(",\\s*"));
+            List<String> actualDocumentos = parseDocumentos(encounter.getDocumentosNecesarios());
+            assertThat(actualDocumentos, containsInAnyOrder(expectedDocumentos.toArray()));
+        }
+    }
+
+    @And("el servicio {int} indica documentos necesarios {string}")
+    public void elServicioIndicaDocumentosNecesarios(Integer serviceIndex, String documentos) {
+        ServiceResponse service = encountersResponse.getEncounters().get(0).getServices().get(serviceIndex - 1);
+        if (documentos == null || documentos.trim().isEmpty()) {
+            assertThat(service.getDocumentosNecesarios(), is(empty()));
+        } else {
+            List<String> expectedDocumentos = List.of(documentos.split(",\\s*"));
+            List<String> actualDocumentos = parseDocumentos(service.getDocumentosNecesarios());
+            assertThat(actualDocumentos, containsInAnyOrder(expectedDocumentos.toArray()));
+        }
+    }
+
+    @And("el encuentro indica como documentos reemplazables {string}")
+    public void elEncuentroIndicaComoDocumentosReemplazables(String documentos) {
+        EncounterResponse encounter = encountersResponse.getEncounters().get(0);
+        if (documentos == null || documentos.trim().isEmpty()) {
+            assertThat(encounter.getDocumentosReemplazables(), is(empty()));
+        } else {
+            List<String> expectedDocumentos = List.of(documentos.split(",\\s*"));
+            List<String> actualDocumentos = parseDocumentos(encounter.getDocumentosReemplazables());
+            assertThat(actualDocumentos, containsInAnyOrder(expectedDocumentos.toArray()));
+        }
+    }
+
+    private List<String> parseDocumentos(List<Object> documentos) {
+        List<String> result = new ArrayList<>();
+        for (Object doc : documentos) {
+            String str = doc.toString();
+            // Si el elemento es un String con formato de lista "[002, 010]", extraer los valores
+            if (str.startsWith("[") && str.endsWith("]")) {
+                String content = str.substring(1, str.length() - 1);
+                if (!content.trim().isEmpty()) {
+                    for (String item : content.split(",\\s*")) {
+                        result.add(item.trim());
+                    }
+                }
+            } else {
+                result.add(str);
+            }
+        }
+        return result;
     }
 
     private String[] getRandomRowFromCsv(String fileName) {
@@ -240,8 +288,9 @@ public class EncountersStepDef extends BaseStepDef {
                     continue;
                 }
                 String[] columns = line.split(",");
+                // columns[0] = PLAN_PK (producto), columns[1] = CODIGO_GARANTE_PK (financiador)
                 if (columns.length >= 2) {
-                    rows.add(new String[]{columns[0].trim(), columns[1].trim()});
+                    rows.add(new String[]{columns[1].trim(), columns[0].trim()}); // {financiador, producto}
                 }
             }
         } catch (IOException | NullPointerException e) {
@@ -271,8 +320,9 @@ public class EncountersStepDef extends BaseStepDef {
                     continue;
                 }
                 String[] columns = line.split(",");
-                if (columns.length >= 2 && financiador.equals(columns[0].trim())) {
-                    matchingRows.add(new String[]{columns[0].trim(), columns[1].trim()});
+                // columns[0] = PLAN_PK (producto), columns[1] = CODIGO_GARANTE_PK (financiador)
+                if (columns.length >= 2 && financiador.equals(columns[1].trim())) {
+                    matchingRows.add(new String[]{columns[1].trim(), columns[0].trim()}); // {financiador, producto}
                 }
             }
         } catch (IOException | NullPointerException e) {
@@ -282,7 +332,7 @@ public class EncountersStepDef extends BaseStepDef {
         if (matchingRows.isEmpty()) {
             throw new AssertionError("No se encontraron productos para el financiador '" + financiador +
                     "' en el archivo CSV: " + filePath +
-                    ". Verifique que el valor del financiador exista en la columna PLAN_PK del archivo.");
+                    ". Verifique que el valor del financiador exista en la columna CODIGO_GARANTE_PK del archivo.");
         }
 
         Random random = new Random();
