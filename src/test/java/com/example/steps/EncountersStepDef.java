@@ -18,18 +18,19 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import net.serenitybdd.screenplay.rest.abilities.CallAnApi;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import static net.serenitybdd.screenplay.actors.OnStage.theActorCalled;
 import static net.serenitybdd.screenplay.actors.OnStage.theActorInTheSpotlight;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.closeTo;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.*;
 
 public class EncountersStepDef extends BaseStepDef {
 
@@ -53,6 +54,30 @@ public class EncountersStepDef extends BaseStepDef {
     public void contieneElSiguienteServicio(DataTable table) {
         Map<String, String> row = table.asMaps().get(0);
         Service service = buildServiceFromRow(row);
+        // Quitar el primer carácter del financiador si tiene valor
+        String financiador = service.getFinanciador();
+        if (financiador != null && financiador.length() > 1 && !"(cualquiera)".equals(financiador)) {
+            service.setFinanciador(financiador.substring(1));
+            currentEncounter.setFinanciador(financiador.substring(1));
+        }
+        //Quitar el primer carácter del producto si tiene valor
+        String producto = service.getProducto();
+        if (producto != null && producto.length() > 1 && !"(cualquiera)".equals(producto)) {
+            service.setProducto(producto.substring(1));
+        }
+        if ("(cualquiera)".equals(service.getFinanciador()) && "(cualquiera)".equals(service.getProducto())) {
+            String[] randomRow = getRandomRowFromCsv("Lst_Productos.csv");
+            service.setFinanciador(randomRow[0]); // PLAN_PK
+            service.setProducto(randomRow[1]);    // CODIGO_GARANTE_PK
+            currentEncounter.setFinanciador(randomRow[0]); // Aseguramos que el financiador del encounter coincida con el del servicio
+        } else if (!"(cualquiera)".equals(service.getFinanciador()) && "(cualquiera)".equals(service.getProducto())) {
+            String[] randomRow = getRandomRowByFinanciadorFromCsv("Lst_Productos.csv", service.getFinanciador());
+            service.setProducto(randomRow[1]); // CODIGO_GARANTE_PK
+        }
+        if("(cualquiera)".equals(service.getBeneficio())) {
+            String[] randomRow = getRandomRowFromCsv("Lst_Beneficio2.csv");
+            service.setBeneficio(randomRow[0]); // BENEFICIO_PK
+        }
         currentEncounter.getServices().add(service);
     }
 
@@ -207,5 +232,76 @@ public class EncountersStepDef extends BaseStepDef {
     public void enviaLaSolicitudAlEndpointDeEncounters() {
         EncountersRequest request = new EncountersRequest(List.of(currentEncounter));
         theActorInTheSpotlight().attemptsTo(PostEncounters.withDetails(request));
+    }
+
+    @And("el encuentro indica como documentos necesario {string}")
+    public void elEncuentroIndicaComoDocumentosNecesario(String documentos) {
+        EncounterResponse encounter = encountersResponse.getEncounters().get(0);
+        List<String> expectedDocumentos = List.of(documentos.split(",\\s*"));
+        assertThat(encounter.getDocumentosNecesarios(), containsInAnyOrder(expectedDocumentos.toArray()));
+    }
+
+    private String[] getRandomRowFromCsv(String fileName) {
+        List<String[]> rows = new ArrayList<>();
+        String filePath = "data/" + fileName;
+
+        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(filePath);
+             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+
+            String line;
+            boolean isHeader = true;
+            while ((line = reader.readLine()) != null) {
+                if (isHeader) {
+                    isHeader = false;
+                    continue;
+                }
+                String[] columns = line.split(",");
+                if (columns.length >= 2) {
+                    rows.add(new String[]{columns[0].trim(), columns[1].trim()});
+                }
+            }
+        } catch (IOException | NullPointerException e) {
+            throw new RuntimeException("Error al leer el archivo CSV: " + filePath, e);
+        }
+
+        if (rows.isEmpty()) {
+            throw new RuntimeException("No se encontraron filas en el archivo CSV: " + filePath);
+        }
+
+        Random random = new Random();
+        return rows.get(random.nextInt(rows.size()));
+    }
+
+    private String[] getRandomRowByFinanciadorFromCsv(String fileName, String financiador) {
+        List<String[]> matchingRows = new ArrayList<>();
+        String filePath = "data/" + fileName;
+
+        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(filePath);
+             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+
+            String line;
+            boolean isHeader = true;
+            while ((line = reader.readLine()) != null) {
+                if (isHeader) {
+                    isHeader = false;
+                    continue;
+                }
+                String[] columns = line.split(",");
+                if (columns.length >= 2 && financiador.equals(columns[0].trim())) {
+                    matchingRows.add(new String[]{columns[0].trim(), columns[1].trim()});
+                }
+            }
+        } catch (IOException | NullPointerException e) {
+            throw new RuntimeException("Error al leer el archivo CSV: " + filePath, e);
+        }
+
+        if (matchingRows.isEmpty()) {
+            throw new AssertionError("No se encontraron productos para el financiador '" + financiador +
+                    "' en el archivo CSV: " + filePath +
+                    ". Verifique que el valor del financiador exista en la columna PLAN_PK del archivo.");
+        }
+
+        Random random = new Random();
+        return matchingRows.get(random.nextInt(matchingRows.size()));
     }
 }
