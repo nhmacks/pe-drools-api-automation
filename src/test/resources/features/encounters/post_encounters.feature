@@ -39,12 +39,12 @@ Feature: Encounters
       | encounter_id        | financiador   | importe_total | tipo_encounter   | empresa | sede |
       | CASE-NECESARIOS-001 | <financiador> | 1500          | <tipo_encounter> | 12      | 4    |
     And contiene el siguiente servicio:
-      | order_id | empresa | sede | producto   | beneficio   | codigo_autorizacion | codigo_prestacion | importe | cantidad |
-      | 1        | 12      | 4    | <producto> | (cualquiera) | PILOTO              | 50201             | 1500    | 1        |
+      | order_id | empresa | sede | producto   | beneficio    | codigo_autorizacion | codigo_prestacion | importe | cantidad |
+      | 1        | 12      | 4    | <producto> | (cualquiera) | PILOTO              | ECO00110          | 1500    | 1        |
     And envia la solicitud al endpoint de encounters
     Then el estado de respuesta debe ser 200
     And la respuesta contiene el encounter_id "CASE-NECESARIOS-001"
-    And el servicio 1 en la respuesta tiene codigo_prestacion "50201"
+    And el servicio 1 en la respuesta tiene codigo_prestacion "ECO00110"
     And el servicio 1 en la respuesta tiene importe 1500
     And el encuentro indica como documentos necesario "<documents>"
 
@@ -67,33 +67,6 @@ Feature: Encounters
       | 1196        | 1536     | AMBULATORIO    |           | 002, 010        |
       | 1126        | 1321     | AMBULATORIO    |           | 002, 010        |
       | 199         | 1237     | AMBULATORIO    |           | 002, 010        |
-
-  @enc003a @smoke @happy-path
-  Scenario Outline: RULE 3a  Sustento administrativo (critical exclude)
-    When el "cliente" envia un encounter con los siguientes datos:
-      | encounter_id        | financiador   | importe_total | tipo_encounter | empresa | sede |
-      | CASE-NECESARIOS-001 | <financiador> | 200           | AMBULATORIO    | 12      | 4    |
-    And contiene el siguiente servicio:
-      | order_id | sede | ambito | financiador   | producto   | plan | beneficio   | codigo_autorizacion | tipo_encounter | codigo_prestacion   | importe | cantidad | empresa |
-      | 1        | 4    | 1      | <financiador> | <producto> | 963  | <beneficio> | AUT-12345           | AMBULATORIO    | <codigo_prestacion> | 200     | 1        | 12      |
-    And envia la solicitud al endpoint de encounters
-    Then el estado de respuesta debe ser 200
-    And la respuesta contiene el encounter_id "CASE-NECESARIOS-001"
-    And el servicio 1 en la respuesta tiene order_id 1
-    And el servicio 1 en la respuesta tiene codigo_prestacion "<codigo_prestacion>"
-    And el servicio 1 en la respuesta tiene importe 200
-    And el encuentro indica como documentos necesario "<documents>"
-
-
-    Examples:
-      | financiador  | producto     | tipo_encounter | codigo_prestacion | documents | document_groups |
-      | (cualquiera) | (cualquiera) | AMBULATORIO    | ADM00029          | 1         |                 |
-      | (cualquiera) | (cualquiera) | AMBULATORIO    | ADM00030          | 1         |                 |
-      | (cualquiera) | (cualquiera) | AMBULATORIO    | ADM00031          | 1         |                 |
-      | 1129         | (cualquiera) | AMBULATORIO    | MFR00002          | 001, 011  |                 |
-      | 164          | (cualquiera) | AMBULATORIO    | MFR00002          | 001, 002  |                 |
-      | 164          | (cualquiera) | AMBULATORIO    | MFR00400          | 001, 002  |                 |
-
 
   @enc002b @smoke @happy-path
   Scenario Outline: RULE 2 TAB 2  Garantia EPS
@@ -120,6 +93,32 @@ Feature: Encounters
       | 1        | 4    | 1      | 129         | 1000     | 963  |           | AUT-99999           | AMBULATORIO    | MFR00002          | 800     | 1        | 12      |
       | 1        | 4    | 1      | 266         | 1000     | 963  |           | AUT-99999           | AMBULATORIO    | MFR00400          | 800     | 1        | 12      |
       | 1        | 4    | 1      | 4           | 1000     | 963  |           | AUT-99999           | AMBULATORIO    | MFR00002          | 800     | 1        | 12      |
+
+  @enc003 @smoke @happy-path
+  Scenario Outline: RULE 3a  Sustento administrativo (critical exclude)
+    When el "cliente" envia un encounter con los siguientes datos:
+      | encounter_id        | financiador   | importe_total | tipo_encounter | empresa | sede |
+      | CASE-NECESARIOS-001 | <financiador> | 200           | AMBULATORIO    | 12      | 4    |
+    And contiene el siguiente servicio:
+      | order_id | empresa | sede | producto   | beneficio    | codigo_autorizacion | codigo_prestacion   | importe | cantidad |
+      | 1        | 12      | 4    | <producto> | (cualquiera) | PILOTO              | <codigo_prestacion> | 200    | 1        |
+    And envia la solicitud al endpoint de encounters
+    Then el estado de respuesta debe ser 200
+    And la respuesta contiene el encounter_id "CASE-NECESARIOS-001"
+    And el servicio 1 en la respuesta tiene order_id 1
+    And el servicio 1 en la respuesta tiene codigo_prestacion "<codigo_prestacion>"
+    And el servicio 1 en la respuesta tiene importe 200
+    And el encuentro indica como documentos necesario "<documents>"
+
+    Examples:
+      | financiador  | producto     | codigo_prestacion | documents | document_groups |
+      | (cualquiera) | (cualquiera) | ADM00029          | 1         |                 |
+      | (cualquiera) | (cualquiera) | ADM00030          | 1         |                 |
+      | (cualquiera) | (cualquiera) | ADM00031          | 1         |                 |
+      | 1129         | (cualquiera) | MFR00002          | 001, 011  |                 |
+      | 164          | (cualquiera) | MFR00002          | 001, 002  |                 |
+      | 164          | (cualquiera) | MFR00400          | 001, 002  |                 |
+
 
   @enc003b @smoke @happy-path
   Scenario Outline: RULE 3b  Medicina física y rehabilitación

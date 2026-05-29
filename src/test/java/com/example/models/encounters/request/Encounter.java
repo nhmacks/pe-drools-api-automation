@@ -1,6 +1,7 @@
 package com.example.models.encounters.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.util.List;
 
@@ -8,6 +9,7 @@ import java.util.List;
  * Represents an encounter with its associated services.
  * Fields use String types where applicable to enable negative testing with invalid data types.
  */
+@JsonPropertyOrder({"encounter_id", "financiador", "importe_total", "empresa", "sede", "tipo_encounter", "services"})
 public class Encounter {
 
     @JsonProperty("encounter_id")

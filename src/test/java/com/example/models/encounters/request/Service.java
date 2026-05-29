@@ -1,11 +1,13 @@
 package com.example.models.encounters.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 /**
  * Represents a service within an encounter.
  * Fields use String types to enable negative testing with invalid data types.
  */
+@JsonPropertyOrder({"order_id", "empresa", "sede", "beneficio","producto", "codigo_autorizacion", "codigo_prestacion",  "importe", "cantidad"})
 public class Service {
 
     @JsonProperty("order_id")
@@ -107,8 +109,8 @@ public class Service {
                 "orderId=" + orderId +
                 ", empresa='" + empresa + '\'' +
                 ", sede='" + sede + '\'' +
-                ", producto='" + producto + '\'' +
                 ", beneficio='" + beneficio + '\'' +
+                ", producto='" + producto + '\'' +
                 ", codigoAutorizacion='" + codigoAutorizacion + '\'' +
                 ", codigoPrestacion='" + codigoPrestacion + '\'' +
                 ", importe=" + importe +
