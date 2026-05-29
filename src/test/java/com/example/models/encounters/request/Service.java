@@ -12,26 +12,19 @@ public class Service {
     private Integer orderId;
 
     private String empresa;
-    private String estado;
+    //private String estado;
     private String sede;
-    private Integer ambito;
-    private String financiador;
     private String producto;
-    private String plan;
     private String beneficio;
 
     @JsonProperty("codigo_autorizacion")
     private String codigoAutorizacion;
-
-    @JsonProperty("tipo_encounter")
-    private String tipoEncounter;
 
     @JsonProperty("codigo_prestacion")
     private String codigoPrestacion;
 
     private Double importe;
     private Integer cantidad;
-    private Ubicacion ubicacion;
 
     public Service() {
     }
@@ -50,14 +43,6 @@ public class Service {
 
     public void setEmpresa(String empresa) {
         this.empresa = empresa;
-    }
-
-    public String getTipoEncounter() {
-        return tipoEncounter;
-    }
-
-    public void setTipoEncounter(String tipoEncounter) {
-        this.tipoEncounter = tipoEncounter;
     }
 
     public String getSede() {
@@ -116,64 +101,18 @@ public class Service {
         this.cantidad = cantidad;
     }
 
-    public Ubicacion getUbicacion() {
-        return ubicacion;
-    }
-
-    public void setUbicacion(Ubicacion ubicacion) {
-        this.ubicacion = ubicacion;
-    }
-
-    public String getEstado() {
-        return estado;
-    }
-
-    public void setEstado(String estado) {
-        this.estado = estado;
-    }
-
-    public Integer getAmbito() {
-        return ambito;
-    }
-
-    public void setAmbito(Integer ambito) {
-        this.ambito = ambito;
-    }
-
-    public String getFinanciador() {
-        return financiador;
-    }
-
-    public void setFinanciador(String financiador) {
-        this.financiador = financiador;
-    }
-
-    public String getPlan() {
-        return plan;
-    }
-
-    public void setPlan(String plan) {
-        this.plan = plan;
-    }
-
     @Override
     public String toString() {
         return "Service{" +
                 "orderId=" + orderId +
                 ", empresa='" + empresa + '\'' +
-                ", estado='" + estado + '\'' +
                 ", sede='" + sede + '\'' +
-                ", ambito=" + ambito +
-                ", financiador='" + financiador + '\'' +
                 ", producto='" + producto + '\'' +
-                ", plan='" + plan + '\'' +
                 ", beneficio='" + beneficio + '\'' +
-                ", tipoEncounter='" + tipoEncounter + '\'' +
                 ", codigoAutorizacion='" + codigoAutorizacion + '\'' +
                 ", codigoPrestacion='" + codigoPrestacion + '\'' +
                 ", importe=" + importe +
                 ", cantidad=" + cantidad +
-                ", ubicacion=" + ubicacion +
                 '}';
     }
 }

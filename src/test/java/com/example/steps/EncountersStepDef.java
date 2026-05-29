@@ -55,9 +55,9 @@ public class EncountersStepDef extends BaseStepDef {
         Map<String, String> row = table.asMaps().get(0);
         Service service = buildServiceFromRow(row);
         // Quitar el primer carácter del financiador si tiene valor
-        String financiador = service.getFinanciador();
+        String financiador = currentEncounter.getFinanciador();
         if (financiador != null && financiador.length() > 1 && !"(cualquiera)".equals(financiador)) {
-            service.setFinanciador(financiador.substring(1));
+            currentEncounter.setFinanciador(financiador.substring(1));
             currentEncounter.setFinanciador(financiador.substring(1));
         }
         //Quitar el primer carácter del producto si tiene valor
@@ -65,13 +65,13 @@ public class EncountersStepDef extends BaseStepDef {
         if (producto != null && producto.length() > 1 && !"(cualquiera)".equals(producto)) {
             service.setProducto(producto.substring(1));
         }
-        if ("(cualquiera)".equals(service.getFinanciador()) && "(cualquiera)".equals(service.getProducto())) {
+        if ("(cualquiera)".equals(currentEncounter.getFinanciador()) && "(cualquiera)".equals(service.getProducto())) {
             String[] randomRow = getRandomRowFromCsv("Lst_Productos.csv");
-            service.setFinanciador(randomRow[0]); // PLAN_PK
+            currentEncounter.setFinanciador(randomRow[0]); // PLAN_PK
             service.setProducto(randomRow[1]);    // CODIGO_GARANTE_PK
             currentEncounter.setFinanciador(randomRow[0]); // Aseguramos que el financiador del encounter coincida con el del servicio
-        } else if (!"(cualquiera)".equals(service.getFinanciador()) && "(cualquiera)".equals(service.getProducto())) {
-            String[] randomRow = getRandomRowByFinanciadorFromCsv("Lst_Productos.csv", service.getFinanciador());
+        } else if (!"(cualquiera)".equals(currentEncounter.getFinanciador()) && "(cualquiera)".equals(service.getProducto())) {
+            String[] randomRow = getRandomRowByFinanciadorFromCsv("Lst_Productos.csv", currentEncounter.getFinanciador());
             service.setProducto(randomRow[1]); // CODIGO_GARANTE_PK
         }
         if("(cualquiera)".equals(service.getBeneficio())) {
@@ -192,20 +192,11 @@ public class EncountersStepDef extends BaseStepDef {
         }
 
         service.setEmpresa(row.getOrDefault("empresa", ""));
-        service.setEstado(row.get("estado"));
         service.setSede(row.get("sede"));
 
-        String ambito = row.get("ambito");
-        if (ambito != null && !ambito.isEmpty()) {
-            service.setAmbito(Integer.parseInt(ambito));
-        }
-
-        service.setFinanciador(row.get("financiador"));
         service.setProducto(row.get("producto"));
-        service.setPlan(row.get("plan"));
         service.setBeneficio(row.getOrDefault("beneficio", ""));
         service.setCodigoAutorizacion(row.get("codigo_autorizacion"));
-        service.setTipoEncounter(row.get("tipo_encounter"));
         service.setCodigoPrestacion(row.get("codigo_prestacion"));
 
         String importe = row.get("importe");
@@ -216,13 +207,6 @@ public class EncountersStepDef extends BaseStepDef {
         String cantidad = row.get("cantidad");
         if (cantidad != null && !cantidad.isEmpty()) {
             service.setCantidad(Integer.parseInt(cantidad));
-        }
-
-        String departamento = row.get("departamento");
-        String provincia = row.get("provincia");
-        if (departamento != null || provincia != null) {
-            Ubicacion ubicacion = new Ubicacion(departamento, provincia);
-            service.setUbicacion(ubicacion);
         }
 
         return service;
