@@ -54,10 +54,11 @@ public class EncountersStepDef extends BaseStepDef {
     public void contieneElSiguienteServicio(DataTable table) {
         Map<String, String> row = table.asMaps().get(0);
         Service service = buildServiceFromRow(row);
-        // Quitar el primer carácter del financiador si tiene valor
+        // Quitar el primer carácter del financiador si tiene valor (excepto valores especiales)
         String financiador = currentEncounter.getFinanciador();
-        if (financiador != null && financiador.length() > 1 && !"(cualquiera)".equals(financiador)) {
-            currentEncounter.setFinanciador(financiador.substring(1));
+        if (financiador != null && financiador.length() > 1
+                && !"(cualquiera)".equals(financiador)
+                && !financiador.startsWith("!=")) {
             currentEncounter.setFinanciador(financiador.substring(1));
         }
         //Quitar el primer carácter del producto si tiene valor
@@ -65,7 +66,16 @@ public class EncountersStepDef extends BaseStepDef {
         if (producto != null && producto.length() > 1 && !"(cualquiera)".equals(producto)) {
             service.setProducto(producto.substring(1));
         }
-        if ("(cualquiera)".equals(currentEncounter.getFinanciador()) && "(cualquiera)".equals(service.getProducto())) {
+        // Manejar financiador con exclusión (!= X)
+        if (currentEncounter.getFinanciador() != null && currentEncounter.getFinanciador().startsWith("!=")) {
+            String excludedValue = currentEncounter.getFinanciador().substring(2).trim();
+            String[] randomRow = getRandomRowExcludingFinanciador("Lst_Productos.csv", excludedValue);
+            currentEncounter.setFinanciador(randomRow[0]); // CODIGO_GARANTE_PK (financiador)
+            if ("(cualquiera)".equals(service.getProducto())) {
+                service.setProducto(randomRow[1]); // PLAN_PK (producto)
+            }
+            System.out.println("Financiador seleccionado (excluyendo " + excludedValue + "): " + randomRow[0]);
+        } else if ("(cualquiera)".equals(currentEncounter.getFinanciador()) && "(cualquiera)".equals(service.getProducto())) {
             String[] randomRow = getRandomRowFromCsv("Lst_Productos.csv");
             currentEncounter.setFinanciador(randomRow[0]); // CODIGO_GARANTE_PK (financiador)
             service.setProducto(randomRow[1]);             // PLAN_PK (producto)
@@ -333,6 +343,40 @@ public class EncountersStepDef extends BaseStepDef {
             throw new AssertionError("No se encontraron productos para el financiador '" + financiador +
                     "' en el archivo CSV: " + filePath +
                     ". Verifique que el valor del financiador exista en la columna CODIGO_GARANTE_PK del archivo.");
+        }
+
+        Random random = new Random();
+        return matchingRows.get(random.nextInt(matchingRows.size()));
+    }
+
+    private String[] getRandomRowExcludingFinanciador(String fileName, String excludedFinanciador) {
+        List<String[]> matchingRows = new ArrayList<>();
+        String filePath = "data/" + fileName;
+
+        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(filePath);
+             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+
+            String line;
+            boolean isHeader = true;
+            while ((line = reader.readLine()) != null) {
+                if (isHeader) {
+                    isHeader = false;
+                    continue;
+                }
+                String[] columns = line.split(",");
+                // columns[0] = PLAN_PK (producto), columns[1] = CODIGO_GARANTE_PK (financiador)
+                // Excluir el financiador especificado
+                if (columns.length >= 2 && !excludedFinanciador.equals(columns[1].trim())) {
+                    matchingRows.add(new String[]{columns[1].trim(), columns[0].trim()}); // {financiador, producto}
+                }
+            }
+        } catch (IOException | NullPointerException e) {
+            throw new RuntimeException("Error al leer el archivo CSV: " + filePath, e);
+        }
+
+        if (matchingRows.isEmpty()) {
+            throw new AssertionError("No se encontraron productos excluyendo el financiador '" + excludedFinanciador +
+                    "' en el archivo CSV: " + filePath);
         }
 
         Random random = new Random();
